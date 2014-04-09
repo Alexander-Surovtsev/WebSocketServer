@@ -1,9 +1,39 @@
 ﻿<html>
 	<head>
 	<meta charset = "utf-8">
+	<script type = "text/javascript" src = "http://surovtsev-javascript.herokuapp.com/jquery.js"></script>
+
 	</head>
-	<body>
+	<body>			
+		<button id = "btnSendMessage">SendMessage</button>
+		<br>
+		<textarea id = "tAMessageToSend" cols="100" ></textarea>
+		<br>
+		<textarea id = "tAIncomeMessages" cols="100" rows="50"></textarea>		
+
 		<script>
+			host_name = "localhost";
+			//host_name = "109.106.137.48";
+			port_num = 8081;
+		</script>
+		
+		<script>
+			$(document).ready(
+				function() {
+					$("#btnSendMessage").click( 
+						function() {
+							//alert("button on click");
+							message  = document.getElementById("tAMessageToSend").value;
+							//HandleMessage(message);
+							socket.send(message);
+						});
+				}
+			);
+		</script>
+
+		<script>
+			createSocket(host_name, port_num);		
+
 			function createSocket(host_name, port_num) {
 			  console.log("try find socket class");
 			  var mySocketClass;
@@ -22,9 +52,12 @@
 			  window.socket = new mySocketClass("ws://" + host_name + ":" + port_num);
 			  window.socket.onmessage = function (evt)
 			  {
-				var received_message = evt.data;
-				console.log("recive data from socket: '" + received_message + "'.");
+				var receivedMessage = evt.data;
+				console.log("recive data from socket: '" + receivedMessage + "'.");
+				HandleMessage(receivedMessage);
+				//sleep(10);
 				//HandleReceive(received_message);
+				//socket.send("ping");
 			  };
 			  window.socket.onopen = function()
 			  {
@@ -43,9 +76,11 @@
 			  return true;
 			}
 
-			host_name = "localhost";
-			port_num = 8081;
-			createSocket(host_name, port_num);
-		</script>
+			
+			function HandleMessage(message) {
+				document.getElementById("tAIncomeMessages").value += message + "\n";
+			}
+		</script>	
+		
 	</body>
 </html>
