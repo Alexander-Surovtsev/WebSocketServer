@@ -1,7 +1,7 @@
 ﻿<html>
 	<head>
-	<meta charset = "utf-8">
-	<script type = "text/javascript" src = "http://surovtsev-javascript.herokuapp.com/jquery.js"></script>
+		<meta charset = "utf-8">
+		<script type = "text/javascript" src = "http://surovtsev-javascript.herokuapp.com/jquery.js"></script>
 
 	</head>
 	<body>			
@@ -14,7 +14,7 @@
 		<script>
 			host_name = "localhost";
 			//host_name = "109.106.137.48";
-			port_num = 8081;
+			port_num = 8080;
 		</script>
 		
 		<script>
@@ -63,7 +63,7 @@
 			  {
 				console.log("Socket successfully create and now is open.");
 				//socket.send(JSON.stringify({"TYPE":"CONNECT", "USER_ID":USER_ID}));
-				socket.send("ping");
+				//socket.send("ping");
 			  };
 			  window.socket.onclose = function()
 			  {
