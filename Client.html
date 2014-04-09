@@ -1,0 +1,51 @@
+﻿<html>
+	<head>
+	<meta charset = "utf-8">
+	</head>
+	<body>
+		<script>
+			function createSocket(host_name, port_num) {
+			  console.log("try find socket class");
+			  var mySocketClass;
+			  if ("MozWebSocket" in window)
+				mySocketClass = MozWebSocket
+			  else if ("WebSocket" in window) 
+				mySocketClass = WebSocket;
+			  else{
+				console.log("Can't find any socket class.");
+				alert("Can't find any socket class.");
+				return false;
+			  }
+			  //host_name = 'rocky-mesa-5725.herokuapp.com';
+			  //port_num = 80;
+			  console.log("Web socket is supported. Try connect to " + host_name + " on port " + port_num + ".");
+			  window.socket = new mySocketClass("ws://" + host_name + ":" + port_num);
+			  window.socket.onmessage = function (evt)
+			  {
+				var received_message = evt.data;
+				console.log("recive data from socket: '" + received_message + "'.");
+				//HandleReceive(received_message);
+			  };
+			  window.socket.onopen = function()
+			  {
+				console.log("Socket successfully create and now is open.");
+				//socket.send(JSON.stringify({"TYPE":"CONNECT", "USER_ID":USER_ID}));
+				socket.send("ping");
+			  };
+			  window.socket.onclose = function()
+			  {
+				console.log("Socket is closed.");
+			  };
+			  window.socket.onerror = function()
+			  {
+				console.log("Something wrong. Error in socket.");
+			  };
+			  return true;
+			}
+
+			host_name = "localhost";
+			port_num = 8081;
+			createSocket(host_name, port_num);
+		</script>
+	</body>
+</html>
