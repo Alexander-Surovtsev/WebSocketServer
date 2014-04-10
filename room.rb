@@ -12,7 +12,7 @@ class Room
   
   def givePlayerList(socket)
     @players.each do |player|
-      socket.send(player.getNickname + "\n")
+      socket.send(player.getNickname)
     end
   end
   

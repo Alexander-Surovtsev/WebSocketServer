@@ -66,10 +66,12 @@ class GameController# < ApplicationController
     
     def getPlayerList(socket, message) 
       str = ""
+      count = 0
       @players.each do |player|
          str += (player.getNickname + "\n")
+         count += 1
       end
-      socket.send(str)
+      socket.send(count.to_s() + "\n" + str)
     end
     
     def getRoomsList(socket, message) 
@@ -79,7 +81,7 @@ class GameController# < ApplicationController
          str += (room.getName + "\n")
          count += 1
       end
-      socket.send(count.to_s() + " " + str)
+      socket.send(count.to_s() + "\n" + str)
     end
     
     def broadcast(message, arr) 
