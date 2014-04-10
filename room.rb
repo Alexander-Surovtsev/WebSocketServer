@@ -23,15 +23,26 @@ class Room
         return false
       end
     end
-    
     @players << player
-
     socket.send("joined successfully")
     return true
+  end
+  
+  def hasPlayer(player)
+    @players.each do |p|
+      if p.getNickname.eql?(player.getNickname)
+        return true
+      end
+    end
+    return false
   end
   
   def getName
     return @name
   end
   
+  def getPlayers
+    return @players
+  end 
+ 
 end

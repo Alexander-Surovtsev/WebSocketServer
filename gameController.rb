@@ -74,10 +74,12 @@ class GameController# < ApplicationController
     
     def getRoomsList(socket, message) 
       str = ""
+      count = 0
       @rooms.each do |room|
          str += (room.getName + "\n")
+         count += 1
       end
-      socket.send(str)
+      socket.send(count.to_s() + " " + str)
     end
     
     def broadcast(message, arr) 
@@ -117,17 +119,32 @@ class GameController# < ApplicationController
       return false
     end
     
-    def findPlayer(nickName)
+    def findPlayer(nickname)
       @players.each do |p|
-        if p.getNickname.eql?(nickName)
+        if p.getNickname.eql?(nickname)
           return p
         end
       end
       return false
     end
     
+    def findRoomByNick(nickname)
+      player = findPlayer(nickname)
+      @rooms.each do |room|
+        if room.hasPlayer(player)
+          return room
+        end
+      end
+      return nil
+    end
+    
+    
     def joinRoom(socket, message, arr)
       if arr.size > 1 and userLoggedIn(socket)
+        if (findRoomByNick(socket.nickName) != nil) and !((findRoomByNick(socket.nickName)).getName.eql?(arr[1]))
+          socket.send("player joined another room")
+          return
+        end
         nameFound = false
         @rooms.each do |room|
           if room.getName.eql?(arr[1])
@@ -179,6 +196,34 @@ class GameController# < ApplicationController
       end
     end
     
+    def findSocketByNick(nickname)
+      @sockets.each do |s|
+        if s.nickName.eql?(nickname)
+          return s
+        end
+      end
+      return nil
+    end
+    
+    def sayRoom(socket, message, arr) 
+      if !(arr.size > 1 and userLoggedIn(socket))
+        socket.send("something wrong")
+        return
+      end
+      player = findPlayer(socket.nickName)
+      room = findRoomByNick(socket.nickName)
+      if (room == nil)
+        socket.send("player not in room")
+      else
+        message.slice! "sayRoom "
+        room.getPlayers.each do |p|
+          s = findSocketByNick(p.getNickname)
+          s.send(message)
+        end
+      end
+      
+    end
+    
     def processMessage(socket, message)
       arr = message.split
       case arr[0]
@@ -196,6 +241,8 @@ class GameController# < ApplicationController
           joinRoom(socket, message, arr)
         when "playersInRoom"
           playersInRoom(socket, message, arr) 
+        when "sayRoom"
+          sayRoom(socket, message, arr)
       end
     end
 end
