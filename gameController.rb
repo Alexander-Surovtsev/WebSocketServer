@@ -144,6 +144,8 @@ class GameController# < ApplicationController
       end
     end
     
+    
+    
     def roomExists(name)
       @rooms.each do |room|
         if room.getName.eql?(name)
@@ -153,13 +155,25 @@ class GameController# < ApplicationController
       return false
     end
     
+    def findRoomByName(name)
+      if (roomExists(name))
+        @rooms.each do |room|
+          if room.getName.eql?(name)
+            return room
+          end
+        end
+        return nil
+      end
+    end
+    
     def playersInRoom(socket, message, arr) 
       if !(arr.size > 1 and userLoggedIn(socket))
         socket.send("something wrong")
         return
       end
       if roomExists(arr[1])
-        givePlayerList(socket)
+        room = findRoomByName(arr[1])
+        room.givePlayerList(socket)
       else
         socket.send("room does not exists")
       end
@@ -180,7 +194,7 @@ class GameController# < ApplicationController
           getRoomsList(socket, message)
         when "joinRoom"
           joinRoom(socket, message, arr)
-        when playersInRoom(socket, message, arr)
+        when "playersInRoom"
           playersInRoom(socket, message, arr) 
       end
     end

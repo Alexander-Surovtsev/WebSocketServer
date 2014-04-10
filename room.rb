@@ -12,13 +12,13 @@ class Room
   
   def givePlayerList(socket)
     @players.each do |player|
-      socket.send(player.getNickname +"\n")
+      socket.send(player.getNickname + "\n")
     end
   end
   
   def join(player, socket)
-    @players.each do |player|
-      if player.getNickname.eql?(player.getNickname)
+    @players.each do |p|
+      if p.getNickname.eql?(player.getNickname)
         socket.send("this player is already in room")
         return false
       end
