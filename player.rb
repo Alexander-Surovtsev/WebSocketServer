@@ -12,7 +12,7 @@ class Player
     end
     
     def getNickname
-      @nickname
+      return @nickname
     end
   end
   

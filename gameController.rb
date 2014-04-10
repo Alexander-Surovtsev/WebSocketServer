@@ -117,7 +117,14 @@ class GameController# < ApplicationController
       return false
     end
     
-    
+    def findPlayer(nickName)
+      @players.each do |p|
+        if p.getNickname.eql?(nickName)
+          return p
+        end
+      end
+      return false
+    end
     
     def joinRoom(socket, message, arr)
       if arr.size > 1 and userLoggedIn(socket)
@@ -125,7 +132,8 @@ class GameController# < ApplicationController
         @rooms.each do |room|
           if room.getName.eql?(arr[1])
             nameFound = true
-            room.join(socket.nickName
+            player = findPlayer(socket.nickName)
+            room.join(player, socket)
           end
         end
         if !nameFound
@@ -133,6 +141,27 @@ class GameController# < ApplicationController
         end
       else
         socket.send("cannot join room")
+      end
+    end
+    
+    def roomExists(name)
+      @rooms.each do |room|
+        if room.getName.eql?(name)
+          return true
+        end
+      end
+      return false
+    end
+    
+    def playersInRoom(socket, message, arr) 
+      if !(arr.size > 1 and userLoggedIn(socket))
+        socket.send("something wrong")
+        return
+      end
+      if roomExists(arr[1])
+        givePlayerList(socket)
+      else
+        socket.send("room does not exists")
       end
     end
     
@@ -151,6 +180,8 @@ class GameController# < ApplicationController
           getRoomsList(socket, message)
         when "joinRoom"
           joinRoom(socket, message, arr)
+        when playersInRoom(socket, message, arr)
+          playersInRoom(socket, message, arr) 
       end
     end
 end

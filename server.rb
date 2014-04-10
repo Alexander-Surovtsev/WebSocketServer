@@ -5,7 +5,7 @@ require_relative 'gameController'
 @gc = GameController.new
 
 EventMachine.run do
-  EventMachine::WebSocket.start(:host => '0.0.0.0', :port => 8081) do |socket|
+  EventMachine::WebSocket.start(:host => '0.0.0.0', :port => 8080) do |socket|
     socket.onopen do
       @gc.addSocket(socket)
     end
