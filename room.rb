@@ -11,6 +11,7 @@ class Room
   end
   
   def givePlayerList(socket)
+    socket.send(@players.size.to_s())
     @players.each do |player|
       socket.send(player.getNickname)
     end
@@ -19,13 +20,17 @@ class Room
   def join(player, socket)
     @players.each do |p|
       if p.getNickname.eql?(player.getNickname)
-        socket.send("this player is already in room")
+        socket.send("this player is already in room " + @name)
         return false
       end
     end
     @players << player
-    socket.send("joined successfully")
+    socket.send("joined successfully to room " + @name)
     return true
+  end
+  
+  def leave(player)
+    @players.delete player
   end
   
   def hasPlayer(player)

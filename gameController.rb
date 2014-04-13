@@ -84,8 +84,13 @@ class GameController# < ApplicationController
       socket.send(count.to_s() + "\n" + str)
     end
     
-    def broadcast(message, arr) 
+    def broadcast(socket, message, arr) 
       message.slice! "broadcast "
+      name = "anonymous"
+      if userLoggedIn(socket)
+        name = socket.nickName
+      end
+      message = "broadcast " + name + ": " + message;
       if arr.length > 1
          @sockets.each {|s| s.send message}
       end
@@ -100,7 +105,7 @@ class GameController# < ApplicationController
         end
       rescue  # same as catch
         hasNick = false
-        socket.send("you are not logged in")
+        #socket.send("you are not logged in")
       end
       return hasNick
     end
@@ -127,7 +132,7 @@ class GameController# < ApplicationController
           return p
         end
       end
-      return false
+      return nil
     end
     
     def findRoomByNick(nickname)
@@ -187,7 +192,7 @@ class GameController# < ApplicationController
     
     def playersInRoom(socket, message, arr) 
       if !(arr.size > 1 and userLoggedIn(socket))
-        socket.send("something wrong")
+        socket.send("Something wrong. Not logged in or missing argument.")
         return
       end
       if roomExists(arr[1])
@@ -209,15 +214,18 @@ class GameController# < ApplicationController
     
     def sayRoom(socket, message, arr) 
       if !(arr.size > 1 and userLoggedIn(socket))
-        socket.send("something wrong")
+        socket.send("Something wrong. Not logged in or missing argument.")
         return
       end
+      
       player = findPlayer(socket.nickName)
       room = findRoomByNick(socket.nickName)
       if (room == nil)
         socket.send("player not in room")
-      else
+      else 
+        name = socket.nickName
         message.slice! "sayRoom "
+        message = "room "+ room.getName + ": " + name + ": " + message 
         room.getPlayers.each do |p|
           s = findSocketByNick(p.getNickname)
           s.send(message)
@@ -226,25 +234,42 @@ class GameController# < ApplicationController
       
     end
     
+    def leaveRoom(socket, message, arr) 
+      if !(userLoggedIn(socket))
+        socket.send("Not logged in")
+        return
+      end
+      room = findRoomByNick(socket.nickName)
+      if room == nil
+        socket.send("you are not in room now")
+        return
+      end
+      player = findPlayer(socket.nickName)
+      room.leave(player)
+      socket.send("player " + socket.nickName + " succesfully leaved room " + room.getName)
+    end
+    
     def processMessage(socket, message)
       arr = message.split
       case arr[0]
-        when "play"
+        when "connect"
           newPlayer(socket, message, arr)
         when "getPlayerList"
           getPlayerList(socket, message)
         when "broadcast"
-          broadcast(message, arr) 
+          broadcast(socket, message, arr) 
         when "addRoom"
           createRoom(socket, message, arr)
         when "getRoomsList"
           getRoomsList(socket, message)
         when "joinRoom"
           joinRoom(socket, message, arr)
-        when "playersInRoom"
+        when "leaveRoom"                            # без аргументов
+          leaveRoom(socket, message, arr)
+        when "playersInRoom"                        #  playersInRoom roomname
           playersInRoom(socket, message, arr) 
         when "sayRoom"
-          sayRoom(socket, message, arr)
+          sayRoom(socket, message, arr)             # sayRoom message
       end
     end
 end
